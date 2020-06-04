@@ -12,6 +12,8 @@ To set up everything from scratch
 Setting up Conan
 ----------------
 
+From `Conan documentation <https://docs.conan.io/en/latest/installation.html>`_:
+
 .. code-block:: bash
 
   # Install Conan
@@ -28,11 +30,9 @@ Building Gerbera
 
 .. code-block:: bash
 
-  # Build directory of out of source build
-  $ mkdir build && cd build
-
   # Get dependencies and generate build files:
-  $ conan install .. && conan build --configure ..
+  # The commands generate build system in build/ subfolder
+  $ conan install -pr ./conan/gerbera-dev -if build . && conan build --configure -bf build .
 
   # Now project is ready to build.
 
@@ -73,48 +73,15 @@ There may be no prebuilt pacakge with particular compiler / settings
 
   $ conan install --build=missing ...
 
-A profile for development:
+Use Conan profiles
 ::::::::::::::::::::::::::
 
-.. code-block:: bash
+It is possible to alter some options for consumed libraries
+(like static / shared) or build configuration (Debug / Release)
+via Conan. Conan provides a way to group such options into a profile:
+a text file used in ``install`` command.
 
-  $ conan profile new gerbera
-
-Example content:
-
-.. code-block:: ini
-
-  include(default)
-
-  [settings]
-  build_type=Debug
-  [options]
-  *:shared=True
-  gerbera:debug_logging=True
-  gerbera:tests=True
-  
-  [env]
-  CXXFLAGS=-Og -Werror -Wall
-  # Requires CMake >= 3.17
-  CMAKE_EXPORT_COMPILE_COMMANDS=ON
-
-
-Then use in ``conan install`` command:
-
-.. code-block:: bash
-
-  $ conan install -pr gerbera ...
-
-(Or just add this content to default profile)
-
-A stand-alone binary with all static dependenceis
-:::::::::::::::::::::::::::::::::::::::::::::::::
-
-.. code-block:: bash
-
-  $ conan install -o "*:shared=False" -o "*:fPIC=False" ...
-
-(Or put this into a profile, together with ``CXXFLAGS=-O3 -flto``)
+There is a number of profiles in the ``conan`` subfolder.
 
 Searching for a package (or checking an update)
 :::::::::::::::::::::::::::::::::::::::::::::::
