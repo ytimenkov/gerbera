@@ -20,6 +20,8 @@ set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR} ${CMAKE_PREFIX_PATH})
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake OPTIONAL)
 
+include(CheckCXXSymbolExists)
+
 if (CONAN_EXPORTED)
     conan_message(STATUS "Conan: called by CMake conan helper")
     # Propagate variables set by the helper
@@ -303,21 +305,23 @@ add_definitions(${LFS_DEFINITIONS})
 add_compile_options(${LFS_COMPILE_OPTIONS})
 target_link_libraries(libgerbera ${LFS_LIBRARIES})
 
-find_package (LibUpnp REQUIRED)
-if (UPNP_VERSION_STRING VERSION_LESS "1.12.1")
-    message(FATAL_ERROR "gerbera requires libupnp 1.12.1 or above.")
-endif()
+find_package (pupnp "1.12.1" REQUIRED)
 
+set(CMAKE_REQUIRED_LIBRARIES pupnp::pupnp)
+
+check_cxx_symbol_exists(UPNP_ENABLE_IPV6 "upnpconfig.h" UPNP_HAS_IPV6)
 if (NOT UPNP_HAS_IPV6)
     message(FATAL_ERROR "Gerbera requires libupnp with IPv6 support.")
 endif()
 
+check_cxx_symbol_exists(UPNP_MINISERVER_REUSEADDR "upnpconfig.h" UPNP_HAS_REUSEADDR)
 if (NOT UPNP_HAS_REUSEADDR)
-    message(WARNING "\n !! It is strongly recommended to build libupnp with --enable-reuseaddr !!\nWithout this option Gerbera will be unable to restart with the same port number.")
+    message(WARNING [=[
+!! It is strongly recommended to build libupnp with --enable-reuseaddr !!
+Without this option Gerbera will be unable to restart with the same port number.]=])
 endif()
 
-target_include_directories(libgerbera PUBLIC ${UPNP_INCLUDE_DIRS})
-target_link_libraries (libgerbera ${UPNP_LIBRARIES})
+target_link_libraries (libgerbera pupnp::pupnp)
 
 find_package(fmt REQUIRED)
 target_link_libraries(libgerbera fmt::fmt)
@@ -351,8 +355,7 @@ else()
 endif()
 
 find_package(pugixml REQUIRED)
-target_include_directories(libgerbera PUBLIC ${pugixml_INCLUDE_DIRS})
-target_link_libraries(libgerbera ${pugixml_LIBRARIES})
+target_link_libraries(libgerbera pugixml::pugixml)
 
 find_package(SQLite3 REQUIRED)
 # TODO: Would be nice to use a SQLite3 as a interface library,

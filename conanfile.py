@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conans import CMake, ConanFile, tools
+from conans.errors import ConanException
 
 
 class GerberaConan(ConanFile):
@@ -28,6 +29,7 @@ class GerberaConan(ConanFile):
         "libiconv/1.16",
         "sqlite3/3.31.1",
         "zlib/1.2.11",
+        "pupnp/1.12.1",
     ]
 
     def configure(self):
