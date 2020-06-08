@@ -12,11 +12,15 @@ class GerberaConan(ConanFile):
         "js": [True, False],
         "debug_logging": [True, False],
         "tests": [True, False],
+        "magic": [True, False],
+        "curl": [True, False],
     }
     default_options = {
         "js": True,
         "debug_logging": False,
         "tests": False,
+        "magic": True,
+        "curl": True,
     }
 
     scm = {"type": "git"}
@@ -43,10 +47,36 @@ class GerberaConan(ConanFile):
         if self.options.tests:
             self.requires("gtest/1.10.0")
 
+    def system_requirements(self):
+        os_info = tools.OSInfo()
+        if os_info.with_apt:
+            magic_pkg = "libmagic-dev"
+            curl_pkg = "libcurl4-openssl-dev"
+        elif os_info.with_pacman:
+            magic_pkg = "file-dev"
+            curl_pkg = "curl-dev"
+        elif os_info.with_yum:
+            magic_pkg = "file-devel"
+            curl_pkg = "libcurl-devel"
+        else:
+            self.output.warn("Don't know how to install packages.")
+            return
+
+        installer = tools.SystemPackageTool(conanfile=self)
+        if self.options.magic:
+            installer.install(magic_pkg)
+
+        # Note: there is a CURL Conan package, but it depends on openssl
+        # which is also in Conan.
+        if self.options.curl:
+            installer.install(curl_pkg)
+
     def build(self):
         cmake = CMake(self)
         cmake.definitions["WITH_JS"] = self.options.js
         cmake.definitions["WITH_DEBUG"] = self.options.debug_logging
         cmake.definitions["WITH_TESTS"] = self.options.tests
+        cmake.definitions["WITH_MAGIC"] = self.options.magic
+        cmake.definitions["WITH_CURL"] = self.options.curl
         cmake.configure()
         cmake.build()
