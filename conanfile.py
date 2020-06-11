@@ -14,6 +14,12 @@ class GerberaConan(ConanFile):
         "tests": [True, False],
         "magic": [True, False],
         "curl": [True, False],
+        "taglib": [True, False],
+        "exif": [True, False],
+        "matroska": [True, False],
+        "mysql": [True, False],
+        "ffmpeg": [True, False],
+        "ffmpegthumbnailer": [True, False],
     }
     default_options = {
         "js": True,
@@ -21,6 +27,13 @@ class GerberaConan(ConanFile):
         "tests": False,
         "magic": True,
         "curl": True,
+        "taglib": True,
+        "exif": True,
+        "matroska": True,
+        # The following are false in CMakeLists.txt, but almost always turned on.
+        "mysql": True,
+        "ffmpeg": True,
+        "ffmpegthumbnailer": True,
     }
 
     scm = {"type": "git"}
@@ -29,7 +42,6 @@ class GerberaConan(ConanFile):
         "fmt/6.2.1",
         "spdlog/1.6.0",
         "pugixml/1.10@bincrafters/stable",
-        "libuuid/1.0.3",
         "libiconv/1.16",
         "sqlite3/3.31.1",
         "zlib/1.2.11",
@@ -47,29 +59,89 @@ class GerberaConan(ConanFile):
         if self.options.tests:
             self.requires("gtest/1.10.0")
 
+        if not self.options.ffmpeg:
+            # ffmpeg has libuuid as a deep transitive dependency
+            # and fails to link otherwise.
+            self.requires("libuuid/1.0.3")
+
     def system_requirements(self):
         os_info = tools.OSInfo()
         if os_info.with_apt:
-            magic_pkg = "libmagic-dev"
-            curl_pkg = "libcurl4-openssl-dev"
+            pm = "apt"
         elif os_info.with_pacman:
-            magic_pkg = "file-dev"
-            curl_pkg = "curl-dev"
+            pm = "pacman"
         elif os_info.with_yum:
-            magic_pkg = "file-devel"
-            curl_pkg = "libcurl-devel"
+            pm = "yum"
         else:
             self.output.warn("Don't know how to install packages.")
             return
 
         installer = tools.SystemPackageTool(conanfile=self)
         if self.options.magic:
-            installer.install(magic_pkg)
+            installer.install(
+                {"apt": "libmagic-dev", "pacman": "file-dev", "yum": "file-devel"}[pm]
+            )
+
+        if self.options.taglib:
+            installer.install(
+                {"apt": "libtag1-dev", "pacman": "taglib-dev", "yum": "libtag-devel"}[
+                    pm
+                ]
+            )
+
+        if self.options.exif:
+            installer.install(
+                {"apt": "libexif-dev", "pacman": "libexif-dev", "yum": "libexif-devel"}[
+                    pm
+                ]
+            )
+
+        if self.options.matroska:
+            installer.install(
+                {
+                    "apt": "libmatroska-dev",
+                    "pacman": "libmatroska-dev",
+                    "yum": "libmatroska-devel",
+                }[pm]
+            )
 
         # Note: there is a CURL Conan package, but it depends on openssl
         # which is also in Conan.
         if self.options.curl:
-            installer.install(curl_pkg)
+            installer.install(
+                {
+                    "apt": "libcurl4-openssl-dev",
+                    "pacman": "curl-dev",
+                    "yum": "libcurl-devel",
+                }[pm]
+            )
+
+        if self.options.mysql:
+            installer.install(
+                {
+                    "apt": "libmariadb-dev",
+                    "pacman": "mariadb-connector-c-dev",
+                    "yum": "mariadb-connector-c-devel",
+                }[pm]
+            )
+
+        if self.options.ffmpeg:
+            installer.install(
+                {
+                    "apt": "libavformat-dev",
+                    "pacman": "ffmpeg-dev",
+                    "yum": "ffmpeg-devel",
+                }[pm]
+            )
+
+        if self.options.ffmpegthumbnailer:
+            installer.install(
+                {
+                    "apt": "libffmpegthumbnailer-dev",
+                    "pacman": "ffmpegthumbnailer-dev",
+                    "yum": "ffmpegthumbnailer-devel",
+                }[pm]
+            )
 
     def build(self):
         cmake = CMake(self)
@@ -78,5 +150,11 @@ class GerberaConan(ConanFile):
         cmake.definitions["WITH_TESTS"] = self.options.tests
         cmake.definitions["WITH_MAGIC"] = self.options.magic
         cmake.definitions["WITH_CURL"] = self.options.curl
+        cmake.definitions["WITH_TAGLIB"] = self.options.taglib
+        cmake.definitions["WITH_EXIF"] = self.options.exif
+        cmake.definitions["WITH_MATROSKA"] = self.options.matroska
+        cmake.definitions["WITH_MYSQL"] = self.options.mysql
+        cmake.definitions["WITH_AVCODEC"] = self.options.ffmpeg
+        cmake.definitions["WITH_FFMPEGTHUMBNAILER"] = self.options.ffmpegthumbnailer
         cmake.configure()
         cmake.build()
