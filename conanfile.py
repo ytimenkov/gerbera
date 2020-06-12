@@ -59,6 +59,9 @@ class GerberaConan(ConanFile):
         if self.options.tests:
             self.requires("gtest/1.10.0")
 
+        if self.options.js:
+            self.requires("duktape/2.5.0")
+
         if not self.options.ffmpeg:
             # ffmpeg has libuuid as a deep transitive dependency
             # and fails to link otherwise.
