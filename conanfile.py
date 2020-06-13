@@ -75,6 +75,8 @@ class GerberaConan(ConanFile):
             pm = "pacman"
         elif os_info.with_yum:
             pm = "yum"
+        elif os_info.is_freebsd:
+            pm = "freebsd"
         else:
             self.output.warn("Don't know how to install packages.")
             return
@@ -82,21 +84,32 @@ class GerberaConan(ConanFile):
         installer = tools.SystemPackageTool(conanfile=self)
         if self.options.magic:
             installer.install(
-                {"apt": "libmagic-dev", "pacman": "file-dev", "yum": "file-devel"}[pm]
+                {
+                    "apt": "libmagic-dev",
+                    "pacman": "file-dev",
+                    "yum": "file-devel",
+                    "freebsd": [],
+                }[pm]
             )
 
         if self.options.taglib:
             installer.install(
-                {"apt": "libtag1-dev", "pacman": "taglib-dev", "yum": "libtag-devel"}[
-                    pm
-                ]
+                {
+                    "apt": "libtag1-dev",
+                    "pacman": "taglib-dev",
+                    "yum": "libtag-devel",
+                    "freebsd": "taglib",
+                }[pm]
             )
 
         if self.options.exif:
             installer.install(
-                {"apt": "libexif-dev", "pacman": "libexif-dev", "yum": "libexif-devel"}[
-                    pm
-                ]
+                {
+                    "apt": "libexif-dev",
+                    "pacman": "libexif-dev",
+                    "yum": "libexif-devel",
+                    "freebsd": "libexif",
+                }[pm]
             )
 
         if self.options.matroska:
@@ -105,6 +118,7 @@ class GerberaConan(ConanFile):
                     "apt": "libmatroska-dev",
                     "pacman": "libmatroska-dev",
                     "yum": "libmatroska-devel",
+                    "freebsd": "libmatroska",
                 }[pm]
             )
 
@@ -116,6 +130,7 @@ class GerberaConan(ConanFile):
                     "apt": "libcurl4-openssl-dev",
                     "pacman": "curl-dev",
                     "yum": "libcurl-devel",
+                    "freebsd": "curl",
                 }[pm]
             )
 
@@ -125,6 +140,7 @@ class GerberaConan(ConanFile):
                     "apt": "libmariadb-dev",
                     "pacman": "mariadb-connector-c-dev",
                     "yum": "mariadb-connector-c-devel",
+                    "freebsd": "mysql-connector-c",
                 }[pm]
             )
 
@@ -134,6 +150,7 @@ class GerberaConan(ConanFile):
                     "apt": "libavformat-dev",
                     "pacman": "ffmpeg-dev",
                     "yum": "ffmpeg-devel",
+                    "freebsd": "ffmpeg",
                 }[pm]
             )
 
@@ -143,6 +160,7 @@ class GerberaConan(ConanFile):
                     "apt": "libffmpegthumbnailer-dev",
                     "pacman": "ffmpegthumbnailer-dev",
                     "yum": "ffmpegthumbnailer-devel",
+                    "freebsd": "ffmpegthumbnailer",
                 }[pm]
             )
 
@@ -159,5 +177,9 @@ class GerberaConan(ConanFile):
         cmake.definitions["WITH_MYSQL"] = self.options.mysql
         cmake.definitions["WITH_AVCODEC"] = self.options.ffmpeg
         cmake.definitions["WITH_FFMPEGTHUMBNAILER"] = self.options.ffmpegthumbnailer
+
+        if self.settings.os != "Linux":
+            cmake.definitions["WITH_SYSTEMD"] = False
+
         cmake.configure()
         cmake.build()

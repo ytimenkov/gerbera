@@ -37,6 +37,14 @@ Building Gerbera
   # Now project is ready to build.
 
 .. note::
+
+  Conan also installs a number of packages using system package manager.
+  Therefore it's a good idea to make sure that ``sudo`` works without password.
+  Check also documentation for CONAN_SYSREQUIRES_MODE_.
+
+.. _CONAN_SYSREQUIRES_MODE: https://docs.conan.io/en/latest/reference/env_vars.html#env-vars-conan-sysrequires-mode
+
+.. note::
   
   Although it is possible to run CMake directly to configure the project
   (and Conan reference shows this multiple times in an example),
@@ -97,3 +105,26 @@ Searching for a package (or checking an update)
   fmt/6.1.2
   fmt/6.2.0
   fmt/6.2.1
+
+Building on FreeBSD
+:::::::::::::::::::
+Everything works almost out of the box, except that there are no prebuilt packages.
+
+.. code-block:: bash
+
+  # Basic build tools
+  $ pkg install gcc9 cmake
+
+  # Python for Conan
+  $ pkg install python3 py37-pip   py37-sqlite3
+
+  # Tools to build dependencies
+  $ pkg install autoconf automake libtool pkgconf gmake
+
+
+It is also possible that some packages (iconv in particular) have some build issues
+with default make. Just install gmake and use ``CONAN_MAKE_PROGRAM=gmake``
+(or even limit the concurrensy by ``CONAN_CPU_COUNT=1``).
+
+
+Remaining system packages are managed by Conan.
