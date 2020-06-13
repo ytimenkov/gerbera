@@ -25,6 +25,11 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(Duktape
 if (DUKTAPE_FOUND)
     set (DUKTAPE_LIBRARIES ${DUKTAPE_LIBRARY})
     set (DUKTAPE_INCLUDE_DIRS ${DUKTAPE_INCLUDE_DIR} )
+    if(NOT TARGET duktape::duktape)
+        add_library(duktape::duktape INTERFACE IMPORTED)
+    endif()
+    set_property(TARGET duktape::duktape PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${DUKTAPE_INCLUDE_DIRS}")
+    set_property(TARGET duktape::duktape PROPERTY INTERFACE_LINK_LIBRARIES "${DUKTAPE_LIBRARIES}")
 endif ()
 
 MARK_AS_ADVANCED(

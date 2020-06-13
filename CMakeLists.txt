@@ -403,9 +403,8 @@ if(WITH_INOTIFY)
 endif()
 
 if(WITH_JS)
-    find_package(Duktape REQUIRED)
-    include_directories(${DUKTAPE_INCLUDE_DIRS})
-    target_link_libraries(libgerbera ${DUKTAPE_LIBRARIES})
+    find_package(duktape REQUIRED)
+    target_link_libraries(libgerbera duktape::duktape)
     add_definitions(-DHAVE_JS)
 endif()
 
