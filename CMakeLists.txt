@@ -326,33 +326,8 @@ target_link_libraries (libgerbera pupnp::pupnp)
 find_package(fmt REQUIRED)
 target_link_libraries(libgerbera fmt::fmt)
 
-find_package(spdlog)
-if(spdlog_FOUND)
-    target_link_libraries(libgerbera spdlog::spdlog)
-
-    if(NOT SPDLOG_FMT_EXTERNAL AND NOT spdlog_COMPILE_DEFINITIONS MATCHES "SPDLOG_FMT_EXTERNAL")
-        message(WARNING [=[
-spdlog is built without SPDLOG_FMT_EXTERNAL.
-Since Gerbera uses fmt library internally the spdlog's bundled version wlll be in conflict
-It is strongly recommended to rebuild spdlog without bundled fmt]=])
-        if(spdlog_VERSION VERSION_GREATER_EQUAL "1.4.0" AND fmt_VERSION VERSION_LESS "6.0.0")
-            message(FATAL_ERROR [=[
-The version of spdlog >= 1.4 bundles fmt version 6, but an older version of fmt was found.
-The current combination won't link.
-Please upgrade fmt or build spdlog with SPDLOG_FMT_EXTERNAL=ON]=])
-        endif()
-    endif()
-else()
-    # See if it's just installed as a library, as not all installs have .cmake files
-    message(STATUS "Looking for spdlog library")
-    find_library(SPDLOG_LIBRARY spdlog)
-    if(SPDLOG_LIBRARY)
-        message(STATUS "Found spdlog: ${SPDLOG_LIBRARY}")
-        target_link_libraries(libgerbera ${SPDLOG_LIBRARY})
-    else()
-        message(FATAL_ERROR "spdlog library is required")
-    endif()
-endif()
+find_package(spdlog REQUIRED)
+target_link_libraries(libgerbera spdlog::spdlog)
 
 find_package(pugixml REQUIRED)
 target_link_libraries(libgerbera pugixml::pugixml)
