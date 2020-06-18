@@ -39,8 +39,6 @@
 # This is usefull to do it this way so that we can always add more libraries
 # if needed to FFMPEG_LIBRARIES if ffmpeg ever changes...
 
-include(CheckStructHasMember)
-
 # if ffmpeg headers are all in one directory
 FIND_PATH(FFMPEG_INCLUDE_DIR avformat.h
         PATHS
@@ -81,8 +79,6 @@ ENDIF (NOT FFMPEG_INCLUDE_DIR)
 # we want the -I include line to use the parent directory of ffmpeg as
 # ffmpeg uses relative includes such as <ffmpeg/avformat.h> or <libavcodec/avformat.h>
 get_filename_component(FFMPEG_INCLUDE_DIR ${FFMPEG_INCLUDE_DIR} ABSOLUTE)
-
-CHECK_STRUCT_HAS_MEMBER("struct AVStream" codecpar libavformat/avformat.h HAVE_AVSTREAM_CODECPAR LANGUAGE C)
 
 FIND_PACKAGE(PkgConfig QUIET)
 PKG_CHECK_MODULES(FFMPEG libavformat libavutil)
