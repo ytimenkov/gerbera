@@ -140,3 +140,8 @@ Remaining system packages are managed by Conan.
 
   ``conan_make_program`` is needed to build correctly IConv. However it interferes with
   CMake generator (if set to Ninja), so please switch to Ninja after building all dependencies.
+
+.. warning::
+
+  It is not a good idea to build with GCC on FreeBSD since resulting binaries crash
+  because system uses CLang and its libc++ which is incompatible with gccs libstdc++.
