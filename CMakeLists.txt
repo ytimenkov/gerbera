@@ -1,4 +1,3 @@
-# TODO: If we can raise required version to 3.11 there will be no need for iconv or 3.14 for sqlite
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 set(GERBERA_MAJOR_VERSION 1)
@@ -333,11 +332,12 @@ find_package(pugixml REQUIRED)
 target_link_libraries(libgerbera pugixml::pugixml)
 
 find_package(SQLite3 REQUIRED)
-# TODO: Would be nice to use a SQLite3 as a interface library,
-# but CMake and Conan has slighly different names (SQLite3:: vs SQLite)
-# and CMake 3.8 doesn't allow to alias them easily...
-target_include_directories(libgerbera PUBLIC ${SQLite3_INCLUDE_DIRS})
-target_link_libraries (libgerbera ${SQLite3_LIBRARIES})
+# Unfortunately Conan and CMake Find module produce slightly different targets.
+if(TARGET SQLite::SQLite3)
+    target_link_libraries(libgerbera SQLite::SQLite3)
+else()
+    target_link_libraries(libgerbera SQLite3::SQLite3)
+endif()
 add_definitions(-DHAVE_SQLITE3)
 
 # We should probably move these two out to their own FindLocale
