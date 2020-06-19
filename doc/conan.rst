@@ -21,8 +21,9 @@ From `Conan documentation <https://docs.conan.io/en/latest/installation.html>`_:
 
   # Auto-detect system settings
   $ conan profile new default --detect
-  $ conan profile update settings.compiler.libcxx=libstdc++11 default
   $ conan profile update settings.compiler.cppstd=17 default
+  # If using gcc:
+  $ conan profile update settings.compiler.libcxx=libstdc++11 default
 
 
 Building Gerbera
@@ -59,7 +60,9 @@ Tweaking
 
 Use Ninja
 :::::::::
-Set environment variable ``CONAN_CMAKE_GENERATOR`` to ``Ninja``.
+.. code-block:: bash
+
+  $ conan config set general.cmake_generator=Ninja  
 
 
 Set up different compiler, add to your Conan profile:
@@ -73,6 +76,16 @@ Set up different compiler, add to your Conan profile:
   [env]
   CC=gcc-10
   CXX=g++-10
+
+If your system has an outdated CMake
+::::::::::::::::::::::::::::::::::::
+Add to ``~/.conan/profiles/default``:
+
+.. code-block:: ini
+
+  [build_requires]
+  cmake/3.17.3
+
 
 There may be no prebuilt pacakge with particular compiler / settings
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -112,19 +125,18 @@ Everything works almost out of the box, except that there are no prebuilt packag
 
 .. code-block:: bash
 
-  # Basic build tools
-  $ pkg install gcc9 cmake
-
   # Python for Conan
-  $ pkg install python3 py37-pip   py37-sqlite3
+  $ pkg install python3 py37-pip py37-sqlite3
 
   # Tools to build dependencies
   $ pkg install autoconf automake libtool pkgconf gmake
 
-
-It is also possible that some packages (iconv in particular) have some build issues
-with default make. Just install gmake and use ``CONAN_MAKE_PROGRAM=gmake``
-(or even limit the concurrensy by ``CONAN_CPU_COUNT=1``).
-
+  # Fix build for Iconv
+  $ conan config set general.conan_make_program=gmake
 
 Remaining system packages are managed by Conan.
+
+.. warning::
+
+  ``conan_make_program`` is needed to build correctly IConv. However it interferes with
+  CMake generator (if set to Ninja), so please switch to Ninja after building all dependencies.

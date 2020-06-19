@@ -1,5 +1,5 @@
 # TODO: If we can raise required version to 3.11 there will be no need for iconv or 3.14 for sqlite
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 set(GERBERA_MAJOR_VERSION 1)
 set(GERBERA_MINOR_VERSION 6)
@@ -425,13 +425,11 @@ endif()
 
 if(WITH_AVCODEC)
     find_package (FFMPEG REQUIRED)
-    include_directories(${FFMPEG_INCLUDE_DIRS})
-    target_link_libraries(libgerbera ${FFMPEG_LIBRARIES})
+    target_link_libraries(libgerbera PkgConfig::FFMPEG)
     add_definitions(-DHAVE_FFMPEG)
 
     include(CheckStructHasMember)
-    set(CMAKE_REQUIRED_INCLUDES ${FFMPEG_INCLUDE_DIRS})
-    set(CMAKE_REQUIRED_LIBRARIES ${FFMPEG_LIBRARIES})
+    set(CMAKE_REQUIRED_LIBRARIES PkgConfig::FFMPEG)
     check_struct_has_member("struct AVStream" codecpar libavformat/avformat.h HAVE_AVSTREAM_CODECPAR LANGUAGE C)
     if (HAVE_AVSTREAM_CODECPAR)
         add_definitions(-DHAVE_AVSTREAM_CODECPAR)

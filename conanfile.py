@@ -6,7 +6,7 @@ class GerberaConan(ConanFile):
     name = "gerbera"
     license = "GPLv2"
 
-    generators = ("cmake", "cmake_find_package")
+    generators = ("cmake", "cmake_find_package", "virtualrunenv")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "js": [True, False],
@@ -41,7 +41,7 @@ class GerberaConan(ConanFile):
     requires = [
         "fmt/6.2.1",
         "spdlog/1.6.0",
-        "pugixml/1.10@bincrafters/stable",
+        "pugixml/1.10",
         "libiconv/1.16",
         "sqlite3/3.31.1",
         "zlib/1.2.11",
