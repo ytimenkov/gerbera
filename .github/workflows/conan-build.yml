@@ -11,10 +11,14 @@ jobs:
       CONAN_RUN_TESTS: 1
     steps:
       - uses: actions/checkout@v1
-      # Alternatively: uses: uses: docker://conanio/gcc9:latest
-      - name: install conan
+      # Alternatively: uses: docker://conanio/gcc9:latest
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      - name: Install conan
         run: |
-          pip3 install -U --no-cache-dir conan
+          pip install -U --no-cache-dir conan
       - name: build and test
         run: |
           conan create -pr ./conan/gerbera-dev . gerbera/dev@

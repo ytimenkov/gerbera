@@ -68,6 +68,10 @@ class GerberaConan(ConanFile):
             self.requires("libuuid/1.0.3")
 
     def system_requirements(self):
+        if tools.cross_building(self):
+            self.output.info("Cross-compiling, not installing system packages")
+            return
+
         os_info = tools.OSInfo()
         if os_info.with_apt:
             pm = "apt"
