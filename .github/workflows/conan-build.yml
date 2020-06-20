@@ -1,0 +1,20 @@
+name: conan
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CC: gcc-9
+      CXX: g++-9
+      CONAN_RUN_TESTS: 1
+    steps:
+      - uses: actions/checkout@v1
+      # Alternatively: uses: uses: docker://conanio/gcc9:latest
+      - name: install conan
+        run: |
+          pip3 install -q -U --no-cache-dir conan
+      - name: build and test
+        run: |
+          conan create -pr ./conan/gerbera-dev . gerbera/dev@

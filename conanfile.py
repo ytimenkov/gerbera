@@ -36,7 +36,7 @@ class GerberaConan(ConanFile):
         "ffmpegthumbnailer": True,
     }
 
-    scm = {"type": "git"}
+    scm = {"type": "git", "url": "auto", "revision": "auto"}
 
     requires = [
         "fmt/6.2.1",
@@ -183,3 +183,6 @@ class GerberaConan(ConanFile):
 
         cmake.configure()
         cmake.build()
+
+        if tools.get_env("CONAN_RUN_TESTS", True):
+            cmake.test(output_on_failure=True)
