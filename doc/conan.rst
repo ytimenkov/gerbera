@@ -60,13 +60,16 @@ Tweaking
 
 Use Ninja
 :::::::::
+
 .. code-block:: bash
 
   $ conan config set general.cmake_generator=Ninja  
 
 
-Set up different compiler, add to your Conan profile:
-:::::::::::::::::::::::::::::::::::::::::::::::::::::
+Set up different compiler
+:::::::::::::::::::::::::
+
+Add to ``~/.conan/profiles/default``:
 
 .. code-block:: ini
 
@@ -77,8 +80,13 @@ Set up different compiler, add to your Conan profile:
   CC=gcc-10
   CXX=g++-10
 
+.. note::
+
+  Most likely you need to add ``--build missing`` option to ``conan install``.
+
 If your system has an outdated CMake
 ::::::::::::::::::::::::::::::::::::
+
 Add to ``~/.conan/profiles/default``:
 
 .. code-block:: ini
@@ -86,23 +94,40 @@ Add to ``~/.conan/profiles/default``:
   [build_requires]
   cmake/3.17.3
 
+Then just clean the build directory and rerun ``conan install && conan build``.
 
 There may be no prebuilt pacakge with particular compiler / settings
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+Conan has prebuilt binaries for a fairly new Linux distro (and thus libc)
+which may not work on an old one.
+
+Also you may want to build dependencies with some specific flags, for example
+``-flto`` to get better codegen.
+
+You need to run rebuild missing or all packages:
+
 .. code-block:: bash
 
+  # Build only missing pacakges
   $ conan install --build=missing ...
 
+  # Rebuild all packages
+  $ conan install --build ...
+
+See `Conan documentation <https://docs.conan.io/en/latest/reference/commands/consumer/install.html#build-options>`_.  
+
 Use Conan profiles
-::::::::::::::::::::::::::
+::::::::::::::::::
 
 It is possible to alter some options for consumed libraries
 (like static / shared) or build configuration (Debug / Release)
 via Conan. Conan provides a way to group such options into a profile:
 a text file used in ``install`` command.
 
-There is a number of profiles in the ``conan`` subfolder.
+It is also possible to define custom compile / link flags in the profile.
+
+There is a number of profiles in the ``conan`` subfolder you can use for reference.
 
 Searching for a package (or checking an update)
 :::::::::::::::::::::::::::::::::::::::::::::::
@@ -121,6 +146,7 @@ Searching for a package (or checking an update)
 
 Building on FreeBSD
 :::::::::::::::::::
+
 Everything works almost out of the box, except that there are no prebuilt packages.
 
 .. code-block:: bash

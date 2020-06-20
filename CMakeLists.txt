@@ -51,7 +51,25 @@ set(WITH_LASTFM         0 CACHE BOOL "Enable LastFM")
 set(WITH_DEBUG          1 CACHE BOOL "Enables debug logging")
 set(WITH_TESTS          0 CACHE BOOL "Enables Unit Tests")
 
-set(libgerberaFILES
+# Warnings are nice
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+
+# Add the automatically determined parts of the RPATH which point to
+# directories outside the build tree to the install RPATH
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# System specific stuff
+if (${CMAKE_SYSTEM_NAME} MATCHES ".*(SunOS|Solaris).*")
+    add_definitions(-DSOLARIS)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES ".*BSD.*")
+    add_definitions(-DBSD)
+endif()
+
+add_definitions(-DPACKAGE_NAME="${PROJECT_NAME}")
+add_definitions(-DVERSION="${GERBERA_VERSION}")
+add_definitions(-DPACKAGE_DATADIR="${CMAKE_INSTALL_PREFIX}/share/gerbera")
+
+add_library(libgerbera STATIC 
         src/action_request.cc
         src/action_request.h
         src/autoscan.cc
@@ -231,31 +249,12 @@ set(libgerberaFILES
         src/web/session_manager.h
         src/web/tasks.cc
         src/web/web_autoscan.cc
-        src/web/web_update.cc)
-
-add_library(libgerbera STATIC ${libgerberaFILES})
+        src/web/web_update.cc
+        )
 target_include_directories(libgerbera PUBLIC "${CMAKE_SOURCE_DIR}/src")
 
 add_executable(gerbera src/main.cc)
 target_link_libraries(gerbera libgerbera)
-
-# Warnings are nice
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-
-# Add the automatically determined parts of the RPATH which point to
-# directories outside the build tree to the install RPATH
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# System specific stuff
-if (${CMAKE_SYSTEM_NAME} MATCHES ".*(SunOS|Solaris).*")
-    add_definitions(-DSOLARIS)
-elseif (${CMAKE_SYSTEM_NAME} MATCHES ".*BSD.*")
-    add_definitions(-DBSD)
-endif()
-
-add_definitions(-DPACKAGE_NAME="${PROJECT_NAME}")
-add_definitions(-DVERSION="${GERBERA_VERSION}")
-add_definitions(-DPACKAGE_DATADIR="${CMAKE_INSTALL_PREFIX}/share/gerbera")
 
 # Generate Compile Information
 include("GenCompileInfo")
