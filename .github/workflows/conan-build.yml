@@ -21,8 +21,7 @@ jobs:
           pip install -U --no-cache-dir conan
           conan profile new default --detect
           conan profile update settings.compiler.cppstd=17 default
-          # Conan doesn't have prebuilt packages for libstdc++11
-          # conan profile update settings.compiler.libcxx=libstdc++11 default
+          conan profile update settings.compiler.libcxx=libstdc++11 default
       - name: build and test
         run: |
-          conan create -pr ./conan/gerbera-dev . gerbera/dev@
+          conan create -pr ./conan/gerbera-dev --build=missing . gerbera/dev@
