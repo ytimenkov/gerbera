@@ -2,7 +2,7 @@ name: CI validation
 
 on:
   push:
-    branches: [master, experiments/gh-cache]
+    branches: [master]
   pull_request:
     branches: [master]
 
@@ -46,9 +46,12 @@ jobs:
             - ${{ runner.os }}-conan-${{ matrix.compiler.name }}-
       - name: build and test
         run: |
+          # Remove existing package if it comes from the cache, otherwise
+          # Conan will skip building it (due to --build=missing policy)
           conan remove 'gerbera/*' --force
           conan create -pr ./conan/dev --build=missing . gerbera/dev@
       - name: cleanup
+        # Remvoe build directories before creating a cache.
         run: |
           conan remove '*' --force --builds --system-reqs
   js:
