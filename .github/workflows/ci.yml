@@ -46,7 +46,7 @@ jobs:
             - ${{ runner.os }}-conan-${{ matrix.compiler.name }}-
       - name: build and test
         run: |
-          conan create -pr ./conan/dev --build=missing . gerbera/dev@
+          conan create -pr ./conan/dev --build=missing --build=gerbera . gerbera/dev@
       - name: cleanup
         run: conan remove '*' --force --builds
   js:
